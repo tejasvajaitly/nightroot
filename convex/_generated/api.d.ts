@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as habits from "../habits.js";
 import type * as myFunctions from "../myFunctions.js";
 
 import type {
@@ -17,6 +18,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  habits: typeof habits;
   myFunctions: typeof myFunctions;
 }>;
 
