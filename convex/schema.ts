@@ -18,7 +18,7 @@ export default defineSchema({
     bodyWeight: v.optional(v.number()),
     // Sleep time in hours
     sleepTime: v.optional(v.number()),
-    // Screen time in minutes
+    // Screen time in hours
     screenTime: v.optional(v.number()),
     // Steps count
     stepsCount: v.optional(v.number()),
@@ -26,8 +26,8 @@ export default defineSchema({
     calories: v.optional(v.number()),
     // Protein in grams
     protein: v.optional(v.number()),
-    // Wake time in HH:MM format (e.g., "07:30")
-    wakeTime: v.optional(v.string()),
+    // Wake time in minutes since midnight (0-1439)
+    wakeTime: v.optional(v.number()),
     // Number of features shipped at work
     featuresShipped: v.optional(v.number()),
   })

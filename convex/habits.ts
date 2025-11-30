@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 
 /**
  * Create or update a habit entry for a specific date.
@@ -14,7 +15,7 @@ export const upsertHabitEntry = mutation({
     stepsCount: v.optional(v.number()),
     calories: v.optional(v.number()),
     protein: v.optional(v.number()),
-    wakeTime: v.optional(v.string()),
+    wakeTime: v.optional(v.number()),
     featuresShipped: v.optional(v.number()),
   },
   returns: v.id("habitEntries"),
@@ -78,7 +79,7 @@ export const getHabitEntry = query({
       stepsCount: v.optional(v.number()),
       calories: v.optional(v.number()),
       protein: v.optional(v.number()),
-      wakeTime: v.optional(v.string()),
+      wakeTime: v.optional(v.number()),
       featuresShipped: v.optional(v.number()),
     }),
     v.null(),
@@ -127,7 +128,7 @@ export const getHabitEntries = query({
       stepsCount: v.optional(v.number()),
       calories: v.optional(v.number()),
       protein: v.optional(v.number()),
-      wakeTime: v.optional(v.string()),
+      wakeTime: v.optional(v.number()),
       featuresShipped: v.optional(v.number()),
     }),
   ),
@@ -174,7 +175,7 @@ export const getAllHabitEntries = query({
       stepsCount: v.optional(v.number()),
       calories: v.optional(v.number()),
       protein: v.optional(v.number()),
-      wakeTime: v.optional(v.string()),
+      wakeTime: v.optional(v.number()),
       featuresShipped: v.optional(v.number()),
     }),
   ),
@@ -194,6 +195,109 @@ export const getAllHabitEntries = query({
 
     // Sort by date descending (most recent first)
     return entries.sort((a, b) => b.date.localeCompare(a.date));
+  },
+});
+
+/**
+ * Helper function to get or create an entry for a date
+ */
+async function getOrCreateEntry(
+  ctx: MutationCtx,
+  date: string,
+  userId: string | undefined,
+) {
+  const existingEntry = userId
+    ? await ctx.db
+        .query("habitEntries")
+        .withIndex("by_user_and_date", (q) =>
+          q.eq("userId", userId).eq("date", date),
+        )
+        .first()
+    : await ctx.db
+        .query("habitEntries")
+        .withIndex("by_date", (q) => q.eq("date", date))
+        .first();
+
+  if (existingEntry) {
+    return existingEntry._id;
+  } else {
+    return await ctx.db.insert("habitEntries", {
+      date,
+      userId: userId ?? undefined,
+    });
+  }
+}
+
+/**
+ * Morning log: Log wake time, weight, sleep time (for today) and previous day's screen time (in hours).
+ */
+export const logMorning = mutation({
+  args: {
+    wakeTime: v.number(), // minutes since midnight
+    bodyWeight: v.number(),
+    sleepTime: v.number(),
+    previousDayScreenTime: v.number(), // in hours
+    date: v.optional(v.string()),
+  },
+  returns: v.object({
+    todayEntryId: v.id("habitEntries"),
+    yesterdayEntryId: v.id("habitEntries"),
+  }),
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    const userId = identity?.subject;
+
+    const today = args.date ?? new Date().toISOString().split("T")[0];
+    const todayDate = new Date(today);
+    const yesterdayDate = new Date(todayDate);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = yesterdayDate.toISOString().split("T")[0];
+
+    const todayEntryId = await getOrCreateEntry(ctx, today, userId);
+    await ctx.db.patch(todayEntryId, {
+      wakeTime: args.wakeTime,
+      bodyWeight: args.bodyWeight,
+      sleepTime: args.sleepTime,
+    });
+
+    const yesterdayEntryId = await getOrCreateEntry(ctx, yesterday, userId);
+    await ctx.db.patch(yesterdayEntryId, {
+      screenTime: args.previousDayScreenTime,
+    });
+
+    return {
+      todayEntryId,
+      yesterdayEntryId,
+    };
+  },
+});
+
+/**
+ * Evening log: Log features shipped, calories, protein, and steps for today.
+ */
+export const logEvening = mutation({
+  args: {
+    featuresShipped: v.number(),
+    calories: v.number(),
+    protein: v.number(),
+    stepsCount: v.number(),
+    date: v.optional(v.string()),
+  },
+  returns: v.id("habitEntries"),
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    const userId = identity?.subject;
+
+    const today = args.date ?? new Date().toISOString().split("T")[0];
+    const entryId = await getOrCreateEntry(ctx, today, userId);
+    await ctx.db.patch(entryId, {
+      featuresShipped: args.featuresShipped,
+      calories: args.calories,
+      protein: args.protein,
+      stepsCount: args.stepsCount,
+    });
+
+    return entryId;
   },
 });
 
