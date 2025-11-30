@@ -6,12 +6,13 @@ import { UserButton } from "@clerk/nextjs";
 import { ModeToggle } from "@/components/mode-toggle";
 import { HabitTracker } from "@/components/habit-tracker";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <>
-      <header className="sticky top-0 z-10 bg-background border-b flex flex-row justify-between items-center px-4 py-3">
-        <div className="text-sm font-medium">Nightroot</div>
+      <header className="sticky top-0 z-10 bg-background flex flex-row justify-between items-center px-4 py-3">
+          <Image src="/mars.svg" alt="Mars" width={36} height={36} />
         <div className="flex items-center gap-2">
           <ModeToggle />
           <UserButton />
