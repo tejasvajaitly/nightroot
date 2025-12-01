@@ -5,7 +5,6 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, ArrowRightLeft } from "lucide-react";
 
 export function HabitTracker() {
   const today = new Date().toISOString().split("T")[0];
@@ -110,15 +109,13 @@ export function HabitTracker() {
       {isMorning ? (
         /* Morning */
         <form onSubmit={handleMorningSubmit} className="w-full space-y-4">
-          <div className="flex items-center gap-2 justify-center mb-6">
-            <Sun className="h-4 w-4" />
-            <h2 className="text-sm font-medium">Morning</h2>
+          <div className="flex items-center justify-center mb-6">
             <button
               type="button"
               onClick={() => setIsMorning(false)}
-              className="ml-2 p-1 hover:opacity-70 transition-opacity"
+              className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer"
             >
-              <ArrowRightLeft className="h-4 w-4" />
+              Morning
             </button>
           </div>
           <div className="space-y-3">
@@ -178,15 +175,13 @@ export function HabitTracker() {
       ) : (
         /* Evening */
         <form onSubmit={handleEveningSubmit} className="w-full space-y-4">
-          <div className="flex items-center gap-2 justify-center mb-6">
-            <Moon className="h-4 w-4" />
-            <h2 className="text-sm font-medium">Evening</h2>
+          <div className="flex items-center justify-center mb-6">
             <button
               type="button"
               onClick={() => setIsMorning(true)}
-              className="ml-2 p-1 hover:opacity-70 transition-opacity"
+              className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer"
             >
-              <ArrowRightLeft className="h-4 w-4" />
+              Evening
             </button>
           </div>
           <div className="space-y-3">

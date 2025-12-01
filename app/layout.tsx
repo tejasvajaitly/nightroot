@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -13,6 +14,20 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const ppMondwest = localFont({
+  src: "../public/PPMondwest-Regular.otf",
+  variable: "--font-pp-mondwest",
+  weight: "400",
+  display: "swap",
+});
+
+const ppNeueBit = localFont({
+  src: "../public/PPNeueBit-Bold.otf",
+  variable: "--font-pp-neue-bit",
+  weight: "700",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +47,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${ppMondwest.variable} ${ppNeueBit.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"
