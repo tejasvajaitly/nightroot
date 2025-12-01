@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
       <header className="sticky top-0 z-10 bg-background flex flex-row justify-between items-center px-4 py-3">
-          <Image src="/mars.svg" alt="Mars" width={36} height={36} />
+          <Image src="/mars.svg" alt="Mars" width={76} height={76} />
         <div className="flex items-center gap-2">
           <ModeToggle />
           <UserButton />
